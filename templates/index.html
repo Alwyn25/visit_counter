@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Hit Counter</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+        <script>
+            function generateCode() {
+                let url = document.getElementById('url').value;
+                let count = document.getElementById('count').value;
+                let imageUrl = window.location.origin + '/' + count + '/tag.svg?url=' + encodeURIComponent(url);
+                document.getElementById('resultImageTag').innerText = '<img src="' + imageUrl + '" alt="Hits">';
+                document.getElementById('resultMarkdown').innerText = '![Hits](' + imageUrl + ')';
+                document.getElementById('resultImage').src = window.location.origin + '/nocount/tag.svg?url=' + encodeURIComponent(url);
+                
+                // Set the markdown color and style
+                document.getElementById('resultMarkdown').style.color = 'purple';
+                document.getElementById('resultMarkdown').style.fontFamily = 'Arial, sans-serif';
+                document.getElementById('resultMarkdown').style.fontSize = '14px';
+                document.getElementById('resultMarkdown').style.textAlign = 'center';
+            }
+
+            function checkUrl() {
+                let url = document.getElementById('urlCheck').value;
+                document.getElementById('urlCheckImage').src = '/nocount/tag.svg?url=' + encodeURIComponent(url);
+            }
+
+            function copyContentOf(id) {
+                let text = document.getElementById(id).innerText;
+
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text)
+                        .then(() => {})
+                        .catch(err => {
+                            console.error('Could not copy text: ', err);
+                        });
+                } else {
+                    let textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+
+                    let successful = document.execCommand('copy');
+                    document.body.removeChild(textArea);
+
+                    if (!successful) {
+                        alert("Failed to copy")
+                    }
+                }
+            }
+            
+            function host() {
+                document.write(window.location.origin);
+            }
+        </script>
+    </head>
+    <body class="text-center pt-1">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <h1><a href="https://github.com/Alwyn25">Hit Counter</a></h1>
+                    <p class="lead text-muted mb-1">Easily count hits on a website by requesting a svg that displays a hit count.</p>
+                    <img src="/count/tag.svg" alt="Hits">
+
+                    <hr>
+
+                    <h2 class="mt-4">Get the Image for the Page It's On</h2>
+                    <p class="my-1">If you want to get the hit count image for a page you can edit and you want to count, add this line:</p>
+                    <div class="my-3">
+                        <pre class="bg-dark mw-100 my-0 rounded py-2 px-4 d-inline-flex justify-content-center">
+                            <code class="text-white mw-100">&lt;img src="<script>host()</script>/count/tag.svg" alt="Hits"&gt;</code>
+                        </pre>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary" onclick="copyContentOf('standard')">Copy HTML Snippet</button>
+
+                    <h2 class="mt-4">Generate SVG Code For A Different Website</h2>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-9 px-1">
+                                <input id="url" type="text" class="form-control" placeholder="https://github.com/Alwyn25" value="https://github.com/Alwyn25" onkeyup="generateCode()">
+                            </div>
+                            <div class="col-md-3 px-1">
+                                <select id="count" class="form-control" onchange="generateCode()">
+                                    <option>count</option>
+                                    <option>nocount</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="my-2">
+                        <img id="resultImage" src="" alt="Selected Hit Counter">
+                    </div>
+                    <p class="text-muted my-1">Image Tag</p>
+                    <div class="my-2">
+                        <pre class="bg-dark mw-100 my-0 rounded py-2 px-4 d-inline-flex justify-content-center">
+                            <code class="text-white mw-100" id="resultImageTag"></code>
+                        </pre>
+                    </div>
+                    <p class="text-muted my-1">Markdown</p>
+                    <div class="my-1">
+                        <pre class="bg-dark mw-100 my-0 rounded py-2 px-4 d-inline-flex justify-content-center">
+                            <code class="text-white mw-100" id="resultMarkdown"></code>
+                        </pre>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary mt-3" onclick="copyContentOf('resultImageTag')">Copy Image Tag</button>
+                    <button type="button" class="btn btn-outline-primary mt-3" onclick="copyContentOf('resultMarkdown')">Copy Markdown</button>
+
+                    <hr>
+
+                {% if top_domain_amount > 0 %}
+                    <h2 class="my-4">Top {{ top_domain_amount }} Domains Using This By Views</h2>
+                    <table class="table table-bordered table-sm mw-800p my-4">
+                        <thead>
+                            <tr>
+                                <th scope="col">Domain</th>
+                                <th scope="col">Total Hits Counted</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for site in top_domains['domains'] %}
+                            <tr>
+                                <td style="word-break: break-all;"><a href="//{{ site }}">{{ site }}</a></td>
+                                <td>{{ top_domains['values'][site] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+
+                {% if top_url_amount > 0 %}
+                    <h2 class="my-4">Top {{ top_url_amount }} URLs Using This By Views</h2>
+                    <table class="table table-bordered table-sm mw-800p my-4">
+                        <thead>
+                            <tr>
+                                <th scope="col">URL</th>
+                                <th scope="col">Total Hits Counted</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for url in top_urls['urls'] %}
+                            <tr>
+                                <td style="word-break: break-all;"><a href="//{{ url }}">{{ url }}</a></td>
+                                <td>{{ top_urls['values'][url] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+
+                {% if top_domain_amount > 0 or top_url_amount > 0 %}
+                    <hr>
+                {% endif %}
+
+                    <h2 class="mt-4">About</h2>
+                    <div class="mw-800p">
+                        <p>This site allows you to request for a svg file that displays views for a url. This url can either be passed as a query parameter or the referrer (or referer) value in the header will be used. </p>
+                        <p>There is also a small method to prevent the refresh count increase issue (if you want to call it an issue, I see it as annoying) which uses cookies.</p>
+                        <p><strong>This makes is very easy too keep track of views on static sites like Github Pages.</strong> (can also be uses on non-static sites as a general counter)</p>
+                        <p>The source code of this server can be found at <a href="https://github.com/Alwyn25/visit_counter">github.com/Alwyn25/visit_counter</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>generateCode();</script>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    </body>
+</html>
